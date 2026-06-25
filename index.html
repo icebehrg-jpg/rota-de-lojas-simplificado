@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Rotas Logísticas</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-        <link rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Rotas Logísticas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
 :root {
   --bg: #f8fafc;
   --header-bg: rgba(255, 255, 255, 0.78);
@@ -457,6 +458,123 @@ html, body {
 .leaflet-tooltip-top:before,
 .leaflet-tooltip-bottom:before { border-top-color: rgba(15, 23, 42, 0.95) !important; }
 
+/* Header buttons (layers, route version) */
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.header-btn:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.header-btn.open { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12); }
+.header-btn[hidden] { display: none; }
+
+.header-btn-icon { color: var(--text-muted); flex-shrink: 0; }
+.header-btn-label { color: var(--text-muted); font-weight: 500; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
+.header-btn-value { color: var(--text); font-weight: 600; }
+.header-btn-caret { color: var(--text-muted); transition: transform 0.2s; }
+.header-btn.open .header-btn-caret { transform: rotate(180deg); color: var(--primary); }
+
+/* Dropdown panel para botões do header (portal no body) */
+.hb-panel {
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 240px;
+  max-width: 320px;
+  z-index: 100000;
+  overflow: hidden;
+  animation: msIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hb-panel[hidden] { display: none; }
+
+.hb-panel-header {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--surface-soft);
+}
+
+.hb-options {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.hb-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.hb-option:hover { background: var(--surface-soft); }
+.hb-option.active { background: var(--primary-soft); }
+
+.hb-option-radio {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  transition: all 0.15s;
+}
+.hb-option.active .hb-option-radio { border-color: var(--primary); }
+.hb-option.active .hb-option-radio::after {
+  content: ''; width: 8px; height: 8px;
+  background: var(--primary); border-radius: 50%;
+}
+
+.hb-option-content {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  line-height: 1.3;
+}
+.hb-option-name {
+  font-weight: 600;
+  color: var(--text);
+  display: flex; align-items: center; gap: 6px;
+}
+.hb-option.active .hb-option-name { color: var(--primary); }
+.hb-option-meta {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.hb-option-swatch {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
 /* Tooltip da loja (hover do pin) — estilo balão branco */
 .leaflet-tooltip.loja-tooltip {
   background: white !important;
@@ -471,56 +589,433 @@ html, body {
 .leaflet-tooltip.loja-tooltip.leaflet-tooltip-top:before { border-top-color: white !important; }
 .leaflet-tooltip.loja-tooltip.leaflet-tooltip-bottom:before { border-bottom-color: white !important; }
 
+/* Tooltip mais discreto para lojas inativas (fora dos filtros) */
+.leaflet-tooltip.loja-tooltip-inactive {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px dashed var(--border-strong) !important;
+  min-width: 160px !important;
+  padding: 7px 10px !important;
+}
+
+/* Hover destaca o alfinete inativo (cresce a partir da ponta da haste) */
+.loja-pin-inactive svg {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 50% 100%;
+}
+.loja-pin-inactive:hover svg {
+  opacity: 1 !important;
+  transform: scale(1.35);
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.18));
+}
+
 /* Scrollbar for header on mobile */
 #header::-webkit-scrollbar { display: none; }
 #header { scrollbar-width: none; }
+
+/* ============================================
+   MOBILE BUTTONS (hidden by default)
+   ============================================ */
+#mobile-filter-btn, #mobile-raios-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  flex-shrink: 0;
+}
+
+#mobile-filter-btn .filter-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+#mobile-filter-btn .filter-badge.visible { display: inline-flex; }
+
+#mobile-raios-btn {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+#mobile-raios-btn.active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ============================================
+   BOTTOM SHEET (mobile)
+   ============================================ */
+#mobile-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 4500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#mobile-sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#mobile-sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.2);
+  z-index: 5000;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+#mobile-sheet.open { transform: translateY(0); }
+
+.sheet-drag {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+  cursor: grab;
+}
+
+.sheet-handle {
+  width: 40px; height: 4px;
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sheet-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sheet-close {
+  background: var(--surface-soft);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.sheet-close:hover { background: var(--border); color: var(--text); }
+
+.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px 8px;
+}
+
+.sheet-footer {
+  display: none; /* só aparece no mobile via media query */
+  gap: 10px;
+  padding: 14px 18px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+/* ============================================
+   MEDIA QUERIES: MOBILE (≤768px)
+   ============================================ */
+@media (max-width: 768px) {
+  #header {
+    height: 56px;
+    padding: 0 12px;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .brand {
+    padding-right: 10px;
+    margin-right: 0;
+    gap: 8px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .brand-icon { width: 30px; height: 30px; }
+  .brand-icon svg { width: 16px; height: 16px; }
+  .brand-text { overflow: hidden; }
+  .brand-title { font-size: 12px; white-space: nowrap; }
+  .brand-sub { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Esconde filtros/ações do header — vão para o sheet */
+  #header .filters, #header .actions-stack, #header #btn-raios { display: none; }
+
+  /* Botões header em modo compacto no mobile */
+  .header-btn {
+    height: 38px; padding: 0 10px; gap: 5px;
+    font-size: 12px;
+  }
+  .header-btn .header-btn-label,
+  .header-btn .header-btn-text { display: none; }
+  .header-btn .header-btn-value { font-size: 12.5px; }
+
+  /* Mostra botões mobile */
+  #mobile-filter-btn { display: inline-flex; margin-left: auto; }
+  #mobile-raios-btn { display: inline-flex; }
+
+  #map { top: 56px; height: calc(100% - 56px); }
+
+  /* Footer do sheet visível */
+  .sheet-footer { display: flex; }
+
+  /* Quando filtros estão dentro do sheet, ficam empilhados full-width */
+  .sheet-body .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sheet-body .multi-select { width: 100%; }
+
+  .sheet-body .ms-trigger {
+    width: 100%;
+    height: 56px;
+    padding: 8px 14px;
+    min-width: 0;
+  }
+
+  .sheet-body .ms-label { font-size: 10.5px; }
+  .sheet-body .ms-summary { font-size: 14px; }
+
+  /* Ações do sheet — Aplicar vira botão primário grande, Limpar fica como secundário */
+  .sheet-footer .actions-stack {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    width: 100%;
+  }
+
+  .sheet-footer #btn-aplica {
+    flex: 1;
+    background: var(--primary);
+    color: white !important;
+    height: 50px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    padding: 0 20px;
+  }
+
+  .sheet-footer #btn-aplica:hover { background: var(--primary-hover); }
+  .sheet-footer #btn-aplica.busy { background: var(--text-soft); color: white !important; }
+
+  .sheet-footer #btn-limpar {
+    height: 50px;
+    padding: 0 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-muted) !important;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .sheet-footer #btn-limpar:hover { background: var(--surface-soft); }
+
+  /* Painel da multi-select no mobile: full-width, com altura controlada */
+  .ms-panel {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    min-width: 0 !important;
+  }
+
+  .ms-options { max-height: 50vh; }
+
+  /* Popups mais compactos */
+  .leaflet-popup-content { margin: 10px 12px !important; font-size: 12px !important; }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 380px) {
+  .brand-sub { display: none; }
+  #mobile-filter-btn { padding: 0 10px; font-size: 12px; }
+}
+
 </style>
-    </head>
-    <body>
-        <div id="header">
-            <div class="brand">
-                <div class="brand-icon">
-                    <svg viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"
-                            stroke="currentColor" stroke-width="2"
-                            stroke-linejoin="round" />
-                        <circle cx="12" cy="10" r="2.5" fill="currentColor" />
-                    </svg>
-                </div>
-                <div class="brand-text">
-                    <span class="brand-title">Rotas Logísticas</span>
-                    <span class="brand-sub">CD Barueri · 214 lojas</span>
-                </div>
-            </div>
-
-            <div class="filters">
-                <div class="multi-select" id="ms-estado"></div>
-                <div class="multi-select" id="ms-cidade"></div>
-                <div class="multi-select" id="ms-agrupamento"></div>
-                <div class="multi-select" id="ms-loja"></div>
-            </div>
-
-            <div class="actions-stack">
-                <a id="btn-aplica" class="text-link">Aplicar</a>
-                <a id="btn-limpar" class="text-link">Limpar</a>
-            </div>
-
-            <button id="btn-raios">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <circle cx="12" cy="12" r="3" fill="currentColor" />
-                </svg>
-                Raios
-            </button>
+  </head>
+  <body>
+    <div id="header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"
+              stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+            <circle cx="12" cy="10" r="2.5" fill="currentColor" />
+          </svg>
         </div>
+        <div class="brand-text">
+          <span class="brand-title">Rotas Logísticas</span>
+          <span class="brand-sub">CD Barueri · 214 lojas</span>
+        </div>
+      </div>
 
-        <div id="map"></div>
+      <div class="filters">
+        <div class="multi-select" id="ms-regiao"></div>
+        <div class="multi-select" id="ms-estado"></div>
+        <div class="multi-select" id="ms-cidade"></div>
+        <div class="multi-select" id="ms-agrupamento"></div>
+        <div class="multi-select" id="ms-loja"></div>
+      </div>
 
-        <script>
+      <div class="actions-stack">
+        <a id="btn-aplica" class="text-link">Aplicar</a>
+        <a id="btn-limpar" class="text-link">Limpar</a>
+      </div>
+
+      <button id="btn-layers" class="header-btn" aria-label="Camadas do mapa">
+        <svg class="header-btn-icon" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+        <span class="header-btn-text">
+          <span class="header-btn-label">Camada</span>
+          <span class="header-btn-value" id="btn-layers-value">Simples</span>
+        </span>
+        <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
+          height="11">
+          <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
+            stroke-width="1.6" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <button id="btn-route-version" class="header-btn" hidden
+        aria-label="Versão da rota">
+        <svg class="header-btn-icon" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><path
+            d="M18 9v12" /><circle cx="18" cy="6" r="3" /><path
+            d="M6 15c0-3 3-3 6-3s6 0 6-3" />
+        </svg>
+        <span class="header-btn-text">
+          <span class="header-btn-label">Versão</span>
+          <span class="header-btn-value"
+            id="btn-route-version-value">Otimizada</span>
+        </span>
+        <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
+          height="11">
+          <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
+            stroke-width="1.6" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <button id="btn-raios">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" fill="currentColor" />
+        </svg>
+        Raios
+      </button>
+
+      <!-- Botões mobile (escondidos no desktop via CSS) -->
+      <button id="mobile-filter-btn" aria-label="Abrir filtros">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M3 6h18M6 12h12M10 18h4" />
+        </svg>
+        <span>Filtros</span>
+        <span class="filter-badge" id="filter-badge">0</span>
+      </button>
+      <button id="mobile-raios-btn" aria-label="Mostrar raios">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" fill="currentColor" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- BOTTOM SHEET (mobile) -->
+    <div id="mobile-sheet-backdrop"></div>
+    <div id="mobile-sheet" role="dialog" aria-modal="true"
+      aria-labelledby="sheet-title">
+      <div class="sheet-drag"><div class="sheet-handle"></div></div>
+      <div class="sheet-header">
+        <span class="sheet-title" id="sheet-title">Filtros</span>
+        <button class="sheet-close" id="sheet-close" aria-label="Fechar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-body" id="sheet-body">
+        <!-- .filters é movido para cá pelo JS quando mobile -->
+      </div>
+      <div class="sheet-footer" id="sheet-footer">
+        <!-- .actions-stack é movido para cá pelo JS quando mobile -->
+      </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
 // ============================================
 // DADOS DAS LOJAS (preenchido via build)
 // ============================================
@@ -752,6 +1247,22 @@ const CD = {
 };
 
 // ============================================
+// REGIÕES DO BRASIL (UF → Região)
+// ============================================
+const REGIOES = {
+  'Norte':        ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
+  'Nordeste':     ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
+  'Centro-Oeste': ['GO', 'MT', 'MS', 'DF'],
+  'Sudeste':      ['ES', 'MG', 'RJ', 'SP'],
+  'Sul':          ['PR', 'RS', 'SC']
+};
+
+const UF_TO_REGIAO = {};
+Object.entries(REGIOES).forEach(([reg, ufs]) => {
+  ufs.forEach(uf => { UF_TO_REGIAO[uf] = reg; });
+});
+
+// ============================================
 // STATE
 // ============================================
 const state = {
@@ -759,6 +1270,8 @@ const state = {
   showRadii: false,
   radiiMarkers: [],
   legInfo: {}, // filial -> { distMeters, durSeconds, prevName, prevType, source, color }
+  routesByAgrup: {}, // agrupamento -> { color, lojas, cache: { stratId -> { ordered, route, source } } }
+  currentStrategy: 'optimized', // estratégia atual
   map: null,
   layers: { markers: null, radii: null, routes: null, cd: null }
 };
@@ -798,16 +1311,108 @@ function nearestNeighborOrder(start, points) {
 }
 
 // ============================================
+// ESTRATÉGIAS DE ORDENAÇÃO DA ROTA
+// Cada estratégia produz uma sequência diferente de paradas → rotas reais diferentes
+// ============================================
+
+// 2-opt: parte da NN e tenta inverter sub-trechos enquanto reduz o total
+function optimized2opt(start, points) {
+  if (points.length < 3) return nearestNeighborOrder(start, points);
+  let route = [start, ...nearestNeighborOrder(start, points)];
+  const totalDist = (r) => r.slice(1).reduce((s, p, i) => s + haversine(r[i], p), 0);
+  let bestDist = totalDist(route);
+  let improved = true, iterations = 0;
+  while (improved && iterations < 100) {
+    improved = false; iterations++;
+    for (let i = 1; i < route.length - 1; i++) {
+      for (let j = i + 1; j < route.length; j++) {
+        const newRoute = [...route.slice(0, i), ...route.slice(i, j + 1).reverse(), ...route.slice(j + 1)];
+        const newDist = totalDist(newRoute);
+        if (newDist < bestDist - 0.001) {
+          route = newRoute; bestDist = newDist; improved = true;
+        }
+      }
+    }
+  }
+  return route.slice(1); // remove o start
+}
+
+// Farthest-first: começa pelo mais distante do CD, depois vai pegando os próximos
+function farthestFirstOrder(start, points) {
+  if (points.length === 0) return [];
+  const remaining = [...points];
+  let farIdx = 0, farD = haversine(start, remaining[0]);
+  for (let i = 1; i < remaining.length; i++) {
+    const d = haversine(start, remaining[i]);
+    if (d > farD) { farD = d; farIdx = i; }
+  }
+  const ordered = [remaining.splice(farIdx, 1)[0]];
+  let current = ordered[0];
+  while (remaining.length) {
+    let minIdx = 0, minD = haversine(current, remaining[0]);
+    for (let i = 1; i < remaining.length; i++) {
+      const d = haversine(current, remaining[i]);
+      if (d < minD) { minD = d; minIdx = i; }
+    }
+    current = remaining[minIdx];
+    ordered.push(current);
+    remaining.splice(minIdx, 1);
+  }
+  return ordered;
+}
+
+const ROUTE_STRATEGIES = [
+  {
+    id: 'optimized',
+    name: 'Otimizada',
+    meta: 'Menor distância total (2-opt)',
+    order: (cd, lojas) => optimized2opt(cd, lojas)
+  },
+  {
+    id: 'nearest',
+    name: 'Próximas primeiro',
+    meta: 'Vizinho mais próximo do CD',
+    order: (cd, lojas) => nearestNeighborOrder(cd, lojas)
+  },
+  {
+    id: 'farthest',
+    name: 'Distantes primeiro',
+    meta: 'Vai aos extremos e volta',
+    order: (cd, lojas) => farthestFirstOrder(cd, lojas)
+  },
+  {
+    id: 'latitude',
+    name: 'Norte → Sul',
+    meta: 'Por ordem de latitude',
+    order: (cd, lojas) => [...lojas].sort((a, b) => b.lat - a.lat)
+  }
+];
+
+function getStrategy(id) { return ROUTE_STRATEGIES.find(s => s.id === id) || ROUTE_STRATEGIES[0]; }
+
+// ============================================
 // PIN ICONS
 // ============================================
-function createPinIcon(color) {
+function createPinIcon(color, active = true) {
+  if (active) {
+    return L.divIcon({
+      className: 'loja-pin',
+      html: `<svg width="14" height="20" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 1.5px 2px rgba(0,0,0,.35));">
+        <path d="M7 0C3.13 0 0 3.13 0 7c0 5.25 7 13 7 13s7-7.75 7-13C14 3.13 10.87 0 7 0z" fill="${color}" stroke="#fff" stroke-width="1.4"/>
+        <circle cx="7" cy="7" r="2.4" fill="#fff"/>
+      </svg>`,
+      iconSize: [14, 20], iconAnchor: [7, 20], popupAnchor: [0, -18]
+    });
+  }
+  // Pin inativo: alfinete delicado (cabeça redonda + haste fina)
   return L.divIcon({
-    className: 'loja-pin',
-    html: `<svg width="14" height="20" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 1.5px 2px rgba(0,0,0,.35));">
-      <path d="M7 0C3.13 0 0 3.13 0 7c0 5.25 7 13 7 13s7-7.75 7-13C14 3.13 10.87 0 7 0z" fill="${color}" stroke="#fff" stroke-width="1.4"/>
-      <circle cx="7" cy="7" r="2.4" fill="#fff"/>
+    className: 'loja-pin loja-pin-inactive',
+    html: `<svg width="10" height="17" viewBox="0 0 10 17" xmlns="http://www.w3.org/2000/svg" style="opacity:0.55;overflow:visible;">
+      <line x1="5" y1="7" x2="5" y2="15.5" stroke="${color}" stroke-width="1" stroke-linecap="round"/>
+      <circle cx="5" cy="4" r="3.4" fill="${color}" stroke="white" stroke-width="0.6"/>
+      <circle cx="5" cy="3.2" r="1" fill="white" opacity="0.55"/>
     </svg>`,
-    iconSize: [14, 20], iconAnchor: [7, 20], popupAnchor: [0, -18]
+    iconSize: [10, 17], iconAnchor: [5, 15.5], popupAnchor: [0, -14]
   });
 }
 
@@ -823,12 +1428,70 @@ const cdIcon = L.divIcon({
 // ============================================
 // MAP INIT
 // ============================================
+// ============================================
+// CAMADAS DO MAPA (5 opções) — default = Simples
+// ============================================
+const MAP_LAYERS = {
+  'Simples': {
+    name: 'Simples',
+    description: 'Minimalista, claro',
+    swatch: '#f8fafc',
+    create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CARTO',
+      subdomains: 'abcd', maxZoom: 19
+    })
+  },
+  'Padrão': {
+    name: 'Padrão',
+    description: 'OpenStreetMap colorido',
+    swatch: '#dceeb6',
+    create: () => L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 19
+    })
+  },
+  'Escuro': {
+    name: 'Escuro',
+    description: 'Tons escuros, contraste alto',
+    swatch: '#1f2937',
+    create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap, © CARTO',
+      subdomains: 'abcd', maxZoom: 19
+    })
+  },
+  'Satélite': {
+    name: 'Satélite',
+    description: 'Imagens aéreas',
+    swatch: '#3a5b3f',
+    create: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri', maxZoom: 19
+    })
+  },
+  'Topográfico': {
+    name: 'Topográfico',
+    description: 'Relevo e curvas de nível',
+    swatch: '#b8c89c',
+    create: () => L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenTopoMap', maxZoom: 17, subdomains: 'abc'
+    })
+  }
+};
+
+let currentMapLayer = null;
+let currentMapLayerName = 'Simples';
+
+function switchMapLayer(name) {
+  if (!MAP_LAYERS[name]) return;
+  if (currentMapLayer) state.map.removeLayer(currentMapLayer);
+  currentMapLayer = MAP_LAYERS[name].create();
+  currentMapLayer.addTo(state.map);
+  currentMapLayer.bringToBack();
+  currentMapLayerName = name;
+  document.getElementById('btn-layers-value').textContent = name;
+}
+
 function initMap() {
   state.map = L.map('map', { zoomControl: true }).setView([-15, -51.5], 4);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(state.map);
+  switchMapLayer('Simples'); // abre sempre na mais simples
 
   state.layers.routes = L.layerGroup().addTo(state.map);
   state.layers.radii = L.layerGroup().addTo(state.map);
@@ -961,15 +1624,31 @@ class MultiSelect {
 
   positionPanel() {
     const rect = this.trigger.getBoundingClientRect();
-    const panelMaxW = 340;
+    const isMobile = window.innerWidth <= 768;
     const margin = 8;
-    let left = rect.left;
-    // se passar da direita da janela, alinha pela direita do trigger
-    if (left + panelMaxW + margin > window.innerWidth) {
-      left = Math.max(margin, rect.right - panelMaxW);
+
+    if (isMobile) {
+      // Full width no mobile
+      this.panel.style.left = margin + 'px';
+
+      // Tenta abrir para baixo; se passar do viewport, flipa para cima
+      const estimatedHeight = Math.min(400, window.innerHeight * 0.55);
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < estimatedHeight + margin && rect.top > spaceBelow) {
+        // Abre para cima
+        this.panel.style.top = Math.max(margin, rect.top - estimatedHeight - 6) + 'px';
+      } else {
+        this.panel.style.top = (rect.bottom + 6) + 'px';
+      }
+    } else {
+      const panelMaxW = 340;
+      let left = rect.left;
+      if (left + panelMaxW + margin > window.innerWidth) {
+        left = Math.max(margin, rect.right - panelMaxW);
+      }
+      this.panel.style.top = (rect.bottom + 6) + 'px';
+      this.panel.style.left = left + 'px';
     }
-    this.panel.style.top = (rect.bottom + 6) + 'px';
-    this.panel.style.left = left + 'px';
   }
 
   close() {
@@ -1048,36 +1727,54 @@ class MultiSelect {
 const filters = {};
 
 function initFilters() {
+  filters.regiao = new MultiSelect(document.getElementById('ms-regiao'), 'Região', onRegiaoChange);
   filters.estado = new MultiSelect(document.getElementById('ms-estado'), 'Estado', onEstadoChange);
   filters.cidade = new MultiSelect(document.getElementById('ms-cidade'), 'Cidade', onCidadeChange);
   filters.agrupamento = new MultiSelect(document.getElementById('ms-agrupamento'), 'Agrupamento', onAgrupamentoChange);
   filters.loja = new MultiSelect(document.getElementById('ms-loja'), 'Loja', () => {});
 
-  // Popular estado inicial
+  // Popular opções iniciais (em ordem de dependência)
+  refreshRegiaoOptions();
   refreshEstadoOptions();
   refreshCidadeOptions();
   refreshAgrupamentoOptions();
   refreshLojaOptions();
 }
 
+function refreshRegiaoOptions() {
+  // Só mostra regiões que têm pelo menos uma loja na base
+  const regs = [...new Set(LOJAS.map(l => UF_TO_REGIAO[l.estado]).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+  filters.regiao.setOptions(regs.map(r => ({ value: r, text: r })));
+}
+
 function refreshEstadoOptions() {
-  const estados = [...new Set(LOJAS.map(l => l.estado))].sort();
+  const reg = filters.regiao.getSelected();
+  const estados = [...new Set(
+    LOJAS.filter(l => reg.length === 0 || reg.includes(UF_TO_REGIAO[l.estado])).map(l => l.estado)
+  )].sort();
   filters.estado.setOptions(estados.map(e => ({ value: e, text: e })));
 }
 
 function refreshCidadeOptions() {
+  const reg = filters.regiao.getSelected();
   const est = filters.estado.getSelected();
   const cidades = [...new Set(
-    LOJAS.filter(l => est.length === 0 || est.includes(l.estado)).map(l => l.cidade)
+    LOJAS.filter(l =>
+      (reg.length === 0 || reg.includes(UF_TO_REGIAO[l.estado])) &&
+      (est.length === 0 || est.includes(l.estado))
+    ).map(l => l.cidade)
   )].sort();
   filters.cidade.setOptions(cidades.map(c => ({ value: c, text: c })));
 }
 
 function refreshAgrupamentoOptions() {
+  const reg = filters.regiao.getSelected();
   const est = filters.estado.getSelected();
   const cid = filters.cidade.getSelected();
   const agrups = [...new Set(
     LOJAS.filter(l =>
+      (reg.length === 0 || reg.includes(UF_TO_REGIAO[l.estado])) &&
       (est.length === 0 || est.includes(l.estado)) &&
       (cid.length === 0 || cid.includes(l.cidade))
     ).map(l => l.agrupamento)
@@ -1086,10 +1783,12 @@ function refreshAgrupamentoOptions() {
 }
 
 function refreshLojaOptions() {
+  const reg = filters.regiao.getSelected();
   const est = filters.estado.getSelected();
   const cid = filters.cidade.getSelected();
   const agr = filters.agrupamento.getSelected();
   const lojas = LOJAS.filter(l =>
+    (reg.length === 0 || reg.includes(UF_TO_REGIAO[l.estado])) &&
     (est.length === 0 || est.includes(l.estado)) &&
     (cid.length === 0 || cid.includes(l.cidade)) &&
     (agr.length === 0 || agr.includes(l.agrupamento))
@@ -1097,6 +1796,7 @@ function refreshLojaOptions() {
   filters.loja.setOptions(lojas.map(l => ({ value: l.filial, text: `${l.razao} (${l.filial})` })));
 }
 
+function onRegiaoChange() { refreshEstadoOptions(); refreshCidadeOptions(); refreshAgrupamentoOptions(); refreshLojaOptions(); }
 function onEstadoChange() { refreshCidadeOptions(); refreshAgrupamentoOptions(); refreshLojaOptions(); }
 function onCidadeChange() { refreshAgrupamentoOptions(); refreshLojaOptions(); }
 function onAgrupamentoChange() { refreshLojaOptions(); }
@@ -1105,12 +1805,14 @@ function onAgrupamentoChange() { refreshLojaOptions(); }
 // APPLY FILTERS
 // ============================================
 function applyFilters() {
+  const reg = filters.regiao.getSelected();
   const est = filters.estado.getSelected();
   const cid = filters.cidade.getSelected();
   const agr = filters.agrupamento.getSelected();
   const fil = filters.loja.getSelected();
 
   state.filteredLojas = LOJAS.filter(l =>
+    (reg.length === 0 || reg.includes(UF_TO_REGIAO[l.estado])) &&
     (est.length === 0 || est.includes(l.estado)) &&
     (cid.length === 0 || cid.includes(l.cidade)) &&
     (agr.length === 0 || agr.includes(l.agrupamento)) &&
@@ -1132,9 +1834,54 @@ function applyFilters() {
 function renderMarkers() {
   state.layers.markers.clearLayers();
 
+  // 1ª passada: pins INATIVOS (lojas fora do filtro atual) — fica embaixo
+  const activeFiliais = new Set(state.filteredLojas.map(l => l.filial));
+  LOJAS.forEach(loja => {
+    if (activeFiliais.has(loja.filial)) return; // pula as ativas (renderizadas depois, por cima)
+    const color = getColor(loja.agrupamento);
+    const marker = L.marker([loja.lat, loja.lng], {
+      icon: createPinIcon(color, false),
+      zIndexOffset: -200,
+      keyboard: false
+    }).addTo(state.layers.markers);
+
+    const popupHTML = `
+      <div style="min-width:230px;max-width:290px;line-height:1.5;">
+        <div style="font-weight:700;font-size:13px;color:#0f172a;border-left:3px solid ${color};padding-left:8px;opacity:0.85;">${loja.razao}</div>
+        <div style="background:#f1f5f9;border:1px dashed var(--border-strong, #cbd5e1);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:11px;color:#475569;display:flex;align-items:center;gap:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>
+          </svg>
+          <span><strong>Fora dos filtros atuais</strong><br>Não está sendo considerada nas rotas desenhadas.</span>
+        </div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:11.5px;">
+          <span style="color:#64748b;">Filial</span><span style="font-weight:500;">#${loja.filial}</span>
+          <span style="color:#64748b;">Endereço</span><span>${loja.endereco}</span>
+          <span style="color:#64748b;">Cidade/UF</span><span>${loja.cidade} - ${loja.estado}</span>
+          <span style="color:#64748b;">Agrupamento</span><span style="color:${color};font-weight:600;">${loja.agrupamento}</span>
+          <span style="color:#64748b;">Km~</span><span>${loja.km}</span>
+        </div>
+      </div>
+    `;
+    marker.bindPopup(popupHTML);
+
+    const tooltipHTML = `
+      <div style="font-weight:700;font-size:12px;line-height:1.3;">${loja.razao}</div>
+      <div style="margin-top:3px;font-size:10.5px;color:#475569;">${loja.cidade}, ${loja.estado} <span style="color:${color};font-weight:600;">· ${loja.agrupamento}</span></div>
+      <div style="margin-top:4px;font-size:10px;color:#94a3b8;font-style:italic;">Fora dos filtros atuais</div>
+    `;
+    marker.bindTooltip(tooltipHTML, {
+      direction: 'top',
+      offset: [0, -14],
+      opacity: 1,
+      className: 'loja-tooltip loja-tooltip-inactive'
+    });
+  });
+
+  // 2ª passada: pins ATIVOS — em cima
   state.filteredLojas.forEach(loja => {
     const color = getColor(loja.agrupamento);
-    const marker = L.marker([loja.lat, loja.lng], { icon: createPinIcon(color) }).addTo(state.layers.markers);
+    const marker = L.marker([loja.lat, loja.lng], { icon: createPinIcon(color, true) }).addTo(state.layers.markers);
 
     const leg = state.legInfo[loja.filial];
 
@@ -1227,14 +1974,15 @@ function renderMarkers() {
 // ============================================
 const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving/';
 
-async function fetchOSRMRoute(waypoints) {
+async function fetchOSRMRoute(waypoints, alternatives = 3) {
   const coordStr = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
-  const url = `${OSRM_BASE}${coordStr}?overview=full&geometries=geojson&steps=false`;
+  const altParam = alternatives > 0 ? `&alternatives=${alternatives}` : '';
+  const url = `${OSRM_BASE}${coordStr}?overview=full&geometries=geojson&steps=false${altParam}`;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error('OSRM HTTP ' + resp.status);
   const data = await resp.json();
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('OSRM no route');
-  return data.routes[0];
+  return data.routes; // array completo (primaria + alternativas)
 }
 
 async function pMapLimit(items, limit, fn) {
@@ -1255,7 +2003,8 @@ let drawRoutesToken = 0;
 
 async function drawRoutes() {
   state.layers.routes.clearLayers();
-  state.legInfo = {}; // reseta distâncias a cada novo Aplicar
+  state.legInfo = {};
+  state.routesByAgrup = {};
   const myToken = ++drawRoutesToken;
 
   // Agrupar por agrupamento → uma rota por agrupamento
@@ -1264,48 +2013,102 @@ async function drawRoutes() {
     (groups[l.agrupamento] = groups[l.agrupamento] || []).push(l);
   });
   const entries = Object.entries(groups);
+  if (entries.length === 0) {
+    document.getElementById('btn-route-version').hidden = true;
+    return;
+  }
+
+  // Estrutura inicial — cache vazio por agrupamento
+  entries.forEach(([agrupamento, lojas]) => {
+    state.routesByAgrup[agrupamento] = {
+      color: getColor(agrupamento),
+      lojas,
+      cache: {} // strategyId -> { ordered, route, source, totalKm, totalSec }
+    };
+  });
+
+  // Renderiza a estratégia atual (faz o fetch OSRM por agrupamento)
+  await renderStrategyForAll(state.currentStrategy, myToken);
+
+  if (myToken !== drawRoutesToken) return;
+
+  updateRouteVersionButton();
+}
+
+// ============================================
+// RENDER por estratégia — fetch OSRM lazy (cacheia por estratégia)
+// ============================================
+async function renderStrategyForAll(strategyId, token = drawRoutesToken) {
+  const strat = getStrategy(strategyId);
+  const entries = Object.entries(state.routesByAgrup);
   if (entries.length === 0) return;
 
-  setBusy(true, `Calculando ${entries.length} rota${entries.length > 1 ? 's' : ''}…`);
+  setBusy(true, `Calculando ${entries.length} rota${entries.length > 1 ? 's' : ''} · ${strat.name}…`);
 
-  await pMapLimit(entries, 4, async ([agrupamento, lojas]) => {
-    const color = getColor(agrupamento); // MESMA cor do pin
-    const ordered = nearestNeighborOrder({ lat: CD.lat, lng: CD.lng }, lojas);
+  await pMapLimit(entries, 4, async ([agrupamento, data]) => {
+    // Já tem em cache?
+    if (data.cache[strategyId]) return;
+
+    const ordered = strat.order({ lat: CD.lat, lng: CD.lng }, data.lojas);
     const waypoints = [{ lat: CD.lat, lng: CD.lng }, ...ordered.map(l => ({ lat: l.lat, lng: l.lng }))];
 
     try {
-      const route = await fetchOSRMRoute(waypoints);
-      if (myToken !== drawRoutesToken) return;
+      const routes = await fetchOSRMRoute(waypoints, 0);
+      if (token !== drawRoutesToken) return;
+      const route = routes[0];
+      data.cache[strategyId] = {
+        ordered, route, waypoints,
+        totalKm: route.distance / 1000,
+        totalSec: route.duration,
+        source: 'osrm'
+      };
+    } catch (e) {
+      console.warn('OSRM falhou:', agrupamento, e.message);
+      if (token !== drawRoutesToken) return;
+      let total = 0;
+      for (let i = 1; i < waypoints.length; i++) total += haversine(waypoints[i-1], waypoints[i]);
+      data.cache[strategyId] = {
+        ordered, route: null, waypoints,
+        totalKm: total, totalSec: 0,
+        source: 'haversine'
+      };
+    }
+  });
 
-      // Guarda distância real (por perna) de cada loja
-      // route.legs[i] = trecho entre waypoint[i] e waypoint[i+1]
+  if (token !== drawRoutesToken) return;
+
+  // Desenha tudo
+  state.layers.routes.clearLayers();
+  state.legInfo = {};
+
+  Object.entries(state.routesByAgrup).forEach(([agrupamento, data]) => {
+    const { color, cache } = data;
+    const c = cache[strategyId];
+    if (!c) return;
+    const { ordered, route, waypoints, source } = c;
+
+    if (source === 'osrm' && route) {
       ordered.forEach((loja, i) => {
         const leg = route.legs && route.legs[i];
         if (!leg) return;
         const prevName = i === 0 ? CD.nome : ordered[i-1].razao;
         const prevType = i === 0 ? 'CD' : 'loja';
         state.legInfo[loja.filial] = {
-          distMeters: leg.distance,
-          durSeconds: leg.duration,
+          distMeters: leg.distance, durSeconds: leg.duration,
           prevName, prevType, source: 'osrm', color
         };
       });
-
       const latlngs = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
       const km = (route.distance / 1000).toFixed(0);
       const h = Math.floor(route.duration / 3600);
       const m = Math.round((route.duration % 3600) / 60);
-
       L.polyline(latlngs, {
-        color: color, weight: 4, opacity: 0.82, lineJoin: 'round', lineCap: 'round'
+        color, weight: 4, opacity: 0.82, lineJoin: 'round', lineCap: 'round'
       })
-      .bindTooltip(`<strong>${agrupamento}</strong><br>${lojas.length} loja${lojas.length > 1 ? 's' : ''} · ${km} km · ${h}h${String(m).padStart(2,'0')}`, { sticky: true })
+      .bindTooltip(`<strong>${agrupamento}</strong> · ${strat.name}<br>${ordered.length} loja${ordered.length > 1 ? 's' : ''} · ${km} km · ${h}h${String(m).padStart(2,'0')}`, { sticky: true })
       .addTo(state.layers.routes);
-    } catch (e) {
-      console.warn('OSRM falhou para', agrupamento, '—', e.message);
-      if (myToken !== drawRoutesToken) return;
-
-      // Fallback: usa haversine para preencher legInfo também
+    } else {
+      // fallback haversine
       ordered.forEach((loja, i) => {
         const prev = i === 0
           ? { lat: CD.lat, lng: CD.lng, name: CD.nome, type: 'CD' }
@@ -1317,21 +2120,36 @@ async function drawRoutes() {
           source: 'haversine', color
         };
       });
-
       const fallback = waypoints.map(p => [p.lat, p.lng]);
-      let total = 0;
-      for (let i = 1; i < waypoints.length; i++) total += haversine(waypoints[i-1], waypoints[i]);
-
-      L.polyline(fallback, { color: color, weight: 2.5, opacity: 0.55, dashArray: '5, 6' })
-        .bindTooltip(`<strong>${agrupamento}</strong><br>${lojas.length} loja(s) · ${total.toFixed(0)} km <em>(linha reta — rota indisponível)</em>`, { sticky: true })
+      L.polyline(fallback, { color, weight: 2.5, opacity: 0.55, dashArray: '5, 6' })
+        .bindTooltip(`<strong>${agrupamento}</strong> · ${strat.name}<br>${ordered.length} loja(s) · ${c.totalKm.toFixed(0)} km <em>(linha reta — rota indisponível)</em>`, { sticky: true })
         .addTo(state.layers.routes);
     }
   });
 
-  if (myToken === drawRoutesToken) {
-    setBusy(false);
-    renderMarkers(); // re-renderiza popups/tooltips com as distâncias reais
-  }
+  setBusy(false);
+  renderMarkers();
+}
+
+// ============================================
+// Troca a estratégia ativa (chamado pelo dropdown do header)
+// ============================================
+async function switchStrategy(strategyId) {
+  state.currentStrategy = strategyId;
+  await renderStrategyForAll(strategyId);
+  updateRouteVersionButton();
+}
+
+// ============================================
+// BOTÃO de versão da rota: sempre visível se há rotas
+// ============================================
+function updateRouteVersionButton() {
+  const btn = document.getElementById('btn-route-version');
+  const groups = Object.values(state.routesByAgrup);
+  if (groups.length === 0) { btn.hidden = true; return; }
+  btn.hidden = false;
+  const strat = getStrategy(state.currentStrategy);
+  document.getElementById('btn-route-version-value').textContent = strat.name;
 }
 
 // ============================================
@@ -1341,12 +2159,16 @@ function clearAll() {
   drawRoutesToken++;
   state.layers.routes.clearLayers();
   state.legInfo = {};
+  state.routesByAgrup = {};
+  state.currentStrategy = 'optimized';
+  document.getElementById('btn-route-version').hidden = true;
 
+  filters.regiao.reset();
   filters.estado.reset();
   filters.cidade.reset();
   filters.agrupamento.reset();
   filters.loja.reset();
-  refreshCidadeOptions(); refreshAgrupamentoOptions(); refreshLojaOptions();
+  refreshEstadoOptions(); refreshCidadeOptions(); refreshAgrupamentoOptions(); refreshLojaOptions();
 
   state.filteredLojas = LOJAS;
   renderMarkers();
@@ -1399,27 +2221,308 @@ function setBusy(on, label) {
 }
 
 // ============================================
+// HEADER BUTTON com dropdown (portal no body)
+// Reutilizado por: Camadas e Versão da rota
+// ============================================
+class HeaderDropdown {
+  constructor(triggerId, title, getOptions, onSelect, getCurrentValue) {
+    this.trigger = document.getElementById(triggerId);
+    this.title = title;
+    this.getOptions = getOptions; // () => [{value, name, meta, swatch}]
+    this.onSelect = onSelect;
+    this.getCurrentValue = getCurrentValue;
+    this.isOpen = false;
+
+    // painel no body (portal)
+    this.panel = document.createElement('div');
+    this.panel.className = 'hb-panel';
+    this.panel.hidden = true;
+    document.body.appendChild(this.panel);
+
+    this.trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      // fecha outros
+      allHeaderDropdowns.forEach(d => { if (d !== this) d.close(); });
+      allMultiSelects.forEach(m => m.close());
+      this.toggle();
+    });
+    this.panel.addEventListener('click', e => e.stopPropagation());
+
+    allHeaderDropdowns.push(this);
+  }
+
+  render() {
+    const options = this.getOptions();
+    const current = this.getCurrentValue();
+    this.panel.innerHTML = `
+      <div class="hb-panel-header">${this.title}</div>
+      <div class="hb-options">
+        ${options.map(o => `
+          <div class="hb-option ${o.value === current ? 'active' : ''}" data-value="${o.value}">
+            <span class="hb-option-radio"></span>
+            ${o.swatch ? `<span class="hb-option-swatch" style="background:${o.swatch};"></span>` : ''}
+            <span class="hb-option-content">
+              <span class="hb-option-name">${o.name}</span>
+              ${o.meta ? `<span class="hb-option-meta">${o.meta}</span>` : ''}
+            </span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    this.panel.querySelectorAll('.hb-option').forEach(el => {
+      el.addEventListener('click', () => {
+        this.onSelect(el.dataset.value);
+        this.close();
+      });
+    });
+  }
+
+  positionPanel() {
+    const rect = this.trigger.getBoundingClientRect();
+    const isMobile = window.innerWidth <= 768;
+    const margin = 8;
+    if (isMobile) {
+      this.panel.style.left = margin + 'px';
+      this.panel.style.right = 'auto';
+      this.panel.style.width = `calc(100vw - ${margin*2}px)`;
+      this.panel.style.maxWidth = `calc(100vw - ${margin*2}px)`;
+      this.panel.style.top = (rect.bottom + 6) + 'px';
+    } else {
+      this.panel.style.width = '';
+      this.panel.style.maxWidth = '';
+      const panelW = 280;
+      let left = rect.left;
+      if (left + panelW + margin > window.innerWidth) {
+        left = Math.max(margin, rect.right - panelW);
+      }
+      this.panel.style.top = (rect.bottom + 6) + 'px';
+      this.panel.style.left = left + 'px';
+    }
+  }
+
+  open() {
+    this.render();
+    this.isOpen = true;
+    this.panel.hidden = false;
+    this.trigger.classList.add('open');
+    this.positionPanel();
+    this._reposition = () => this.positionPanel();
+    window.addEventListener('resize', this._reposition);
+    window.addEventListener('scroll', this._reposition, true);
+  }
+
+  close() {
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    this.panel.hidden = true;
+    this.trigger.classList.remove('open');
+    if (this._reposition) {
+      window.removeEventListener('resize', this._reposition);
+      window.removeEventListener('scroll', this._reposition, true);
+      this._reposition = null;
+    }
+  }
+
+  toggle() { this.isOpen ? this.close() : this.open(); }
+}
+
+const allHeaderDropdowns = [];
+
+function initHeaderDropdowns() {
+  // Camadas
+  new HeaderDropdown(
+    'btn-layers',
+    'Camada do mapa',
+    () => Object.values(MAP_LAYERS).map(l => ({
+      value: l.name, name: l.name, meta: l.description, swatch: l.swatch
+    })),
+    (val) => switchMapLayer(val),
+    () => currentMapLayerName
+  );
+
+  // Versão da rota — uma estratégia de ordenação por opção
+  new HeaderDropdown(
+    'btn-route-version',
+    'Estratégia da rota',
+    () => {
+      // Para cada estratégia, mostra total agregado SE já estiver em cache; senão só o nome
+      return ROUTE_STRATEGIES.map(s => {
+        let totalKm = 0, totalSec = 0, hasCache = false, allCached = true;
+        Object.values(state.routesByAgrup).forEach(data => {
+          const c = data.cache[s.id];
+          if (c) { totalKm += c.totalKm; totalSec += c.totalSec; hasCache = true; }
+          else { allCached = false; }
+        });
+        let meta = s.meta;
+        if (hasCache && allCached && totalSec > 0) {
+          const h = Math.floor(totalSec / 3600);
+          const m = Math.round((totalSec % 3600) / 60);
+          meta = `${s.meta} · ${totalKm.toFixed(0)} km · ${h}h${String(m).padStart(2,'0')} total`;
+        } else if (hasCache && allCached) {
+          meta = `${s.meta} · ${totalKm.toFixed(0)} km total (aprox.)`;
+        }
+        return { value: s.id, name: s.name, meta };
+      });
+    },
+    (val) => switchStrategy(val),
+    () => state.currentStrategy
+  );
+}
+
+// ============================================
 // INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
   initMap();
   initFilters();
+  initHeaderDropdowns();
   renderMarkers();
 
   document.getElementById('btn-aplica').addEventListener('click', e => { e.preventDefault(); applyFilters(); });
   document.getElementById('btn-limpar').addEventListener('click', e => { e.preventDefault(); clearAll(); });
   document.getElementById('btn-raios').addEventListener('click', toggleRadii);
 
-  // Click fora fecha multi-selects
+  // Click fora fecha multi-selects e header dropdowns
   document.addEventListener('click', () => {
     allMultiSelects.forEach(m => m.close());
+    if (typeof allHeaderDropdowns !== 'undefined') allHeaderDropdowns.forEach(d => d.close());
   });
 
-  // ESC fecha multi-selects
+  // ESC fecha multi-selects e sheet
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') allMultiSelects.forEach(m => m.close());
+    if (e.key === 'Escape') {
+      allMultiSelects.forEach(m => m.close());
+      if (typeof allHeaderDropdowns !== 'undefined') allHeaderDropdowns.forEach(d => d.close());
+      closeSheet();
+    }
   });
+
+  setupResponsive();
+  setupMobileSheet();
 });
+
+// ============================================
+// RESPONSIVE LAYOUT — move filters/actions entre header e bottom sheet
+// ============================================
+function setupResponsive() {
+  const filtersEl = document.querySelector('#header .filters');
+  const actionsEl = document.querySelector('#header .actions-stack');
+  const header = document.getElementById('header');
+  const sheetBody = document.getElementById('sheet-body');
+  const sheetFooter = document.getElementById('sheet-footer');
+  const mobileFilterBtn = document.getElementById('mobile-filter-btn');
+
+  let lastMobile = null;
+
+  function apply() {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile === lastMobile) return;
+    lastMobile = isMobile;
+
+    if (isMobile) {
+      // Move para o sheet
+      sheetBody.appendChild(filtersEl);
+      sheetFooter.appendChild(actionsEl);
+      document.body.classList.add('is-mobile');
+    } else {
+      // Move de volta para o header — antes do btn-raios
+      const raios = document.getElementById('btn-raios');
+      header.insertBefore(filtersEl, raios);
+      header.insertBefore(actionsEl, raios);
+      document.body.classList.remove('is-mobile');
+      // Garante que sheet esteja fechado
+      closeSheet();
+    }
+    // Fecha qualquer painel de multi-select aberto (reposicionamento muda)
+    allMultiSelects.forEach(m => m.close());
+  }
+
+  apply();
+  window.addEventListener('resize', apply);
+}
+
+// ============================================
+// BOTTOM SHEET — abrir/fechar e badge de contagem
+// ============================================
+function setupMobileSheet() {
+  const sheet = document.getElementById('mobile-sheet');
+  const backdrop = document.getElementById('mobile-sheet-backdrop');
+  const openBtn = document.getElementById('mobile-filter-btn');
+  const closeBtn = document.getElementById('sheet-close');
+  const mobileRaios = document.getElementById('mobile-raios-btn');
+
+  openBtn.addEventListener('click', e => { e.stopPropagation(); openSheet(); });
+  closeBtn.addEventListener('click', closeSheet);
+  backdrop.addEventListener('click', closeSheet);
+
+  // Mobile raios button espelha o desktop
+  mobileRaios.addEventListener('click', () => {
+    toggleRadii();
+    mobileRaios.classList.toggle('active', state.showRadii);
+  });
+
+  // Drag handle gesture: arrastar para baixo fecha
+  const dragArea = sheet.querySelector('.sheet-drag');
+  let startY = 0, currentY = 0, dragging = false;
+  dragArea.addEventListener('touchstart', e => { dragging = true; startY = e.touches[0].clientY; });
+  dragArea.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    currentY = e.touches[0].clientY;
+    const dy = Math.max(0, currentY - startY);
+    sheet.style.transform = `translateY(${dy}px)`;
+  });
+  dragArea.addEventListener('touchend', () => {
+    if (!dragging) return;
+    const dy = currentY - startY;
+    sheet.style.transform = '';
+    if (dy > 80) closeSheet();
+    dragging = false;
+  });
+
+  // Atualiza badge sempre que filtros mudam
+  const updateBadge = () => {
+    const total =
+      filters.regiao.getSelected().length +
+      filters.estado.getSelected().length +
+      filters.cidade.getSelected().length +
+      filters.agrupamento.getSelected().length +
+      filters.loja.getSelected().length;
+    const badge = document.getElementById('filter-badge');
+    badge.textContent = total;
+    badge.classList.toggle('visible', total > 0);
+  };
+  ['regiao', 'estado', 'cidade', 'agrupamento', 'loja'].forEach(k => {
+    const orig = filters[k].onChange;
+    filters[k].onChange = () => { orig(); updateBadge(); };
+  });
+  updateBadge();
+
+  // Quando Aplicar/Limpar é clicado dentro do sheet, fecha o sheet pro usuário ver o mapa
+  document.getElementById('btn-aplica').addEventListener('click', () => {
+    if (document.body.classList.contains('is-mobile')) {
+      setTimeout(closeSheet, 200); // tempinho pra animar o "Calculando..."
+    }
+  });
+  document.getElementById('btn-limpar').addEventListener('click', () => {
+    if (document.body.classList.contains('is-mobile')) {
+      setTimeout(updateBadge, 50);
+    }
+  });
+}
+
+function openSheet() {
+  document.getElementById('mobile-sheet').classList.add('open');
+  document.getElementById('mobile-sheet-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet() {
+  document.getElementById('mobile-sheet').classList.remove('open');
+  document.getElementById('mobile-sheet-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+  // Fecha qualquer multi-select aberto também
+  if (typeof allMultiSelects !== 'undefined') allMultiSelects.forEach(m => m.close());
+}
 </script>
-    </body>
+  </body>
 </html>
