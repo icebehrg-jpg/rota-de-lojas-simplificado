@@ -12,6 +12,10 @@
     <link rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script defer
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
     <style>
 :root {
   --bg: #f8fafc;
@@ -612,6 +616,190 @@ html, body {
 #header::-webkit-scrollbar { display: none; }
 #header { scrollbar-width: none; }
 
+/* Etiquetas temporárias usadas pelo exportador — só o número */
+.export-label { background: transparent !important; border: none !important; pointer-events: none; }
+.export-label-num {
+  background: #4f46e5;
+  color: white;
+  font-weight: 800;
+  font-size: 10.5px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  border: 1.5px solid white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  box-shadow: 0 1px 2.5px rgba(0, 0, 0, 0.3);
+  font-family: 'Inter', -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* Botão de ícone discreto (Exportar) */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.icon-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+  box-shadow: var(--shadow-md);
+}
+.icon-btn:active { transform: translateY(0.5px); }
+.icon-btn.busy { pointer-events: none; }
+.icon-btn.busy svg { display: none; }
+.icon-btn.busy::after {
+  content: '';
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: icon-btn-spin 0.7s linear infinite;
+}
+@keyframes icon-btn-spin { to { transform: rotate(360deg); } }
+
+/* Modo "captura" — esconde elementos que não devem aparecer no PDF */
+body.exporting .leaflet-control-container,
+body.exporting .loja-pin-inactive { display: none !important; }
+
+/* ============================================
+   PRINT (window.print → salvar como PDF)
+   ----------------------------------------------
+   As regras body.printing são aplicadas TAMBÉM
+   na tela para que o mapa já esteja no tamanho A4
+   antes do fitBounds rodar — assim o CD e todas
+   as lojas ficam corretamente enquadrados.
+   ============================================ */
+#print-header, #print-legend, #print-footer { display: none; }
+
+body.printing {
+  background: white !important;
+  overflow: auto !important;
+}
+
+body.printing #header,
+body.printing #mobile-sheet,
+body.printing #mobile-sheet-backdrop,
+body.printing .leaflet-control-container,
+body.printing .loja-pin-inactive,
+body.printing .ms-panel,
+body.printing .hb-panel {
+  display: none !important;
+}
+
+/* Header de impressão removido (a pedido do usuário) */
+body.printing #print-header { display: none !important; }
+
+/* Mapa ocupa quase toda a página */
+body.printing #map {
+  position: fixed !important;
+  top: 4mm !important;
+  left: 4mm !important;
+  right: auto !important;
+  width: 202mm !important;
+  height: 222mm !important;
+  border: 0.5px solid #cbd5e1;
+  z-index: 1;
+}
+
+/* Legenda compacta em 3 colunas */
+body.printing #print-legend {
+  display: block !important;
+  position: fixed;
+  top: 230mm;
+  left: 4mm;
+  width: 202mm;
+  height: 63mm;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  color: #0f172a !important;
+  z-index: 2;
+}
+
+body.printing .print-legend-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4mm;
+  font-weight: 700;
+  font-size: 8.5pt;
+  margin-bottom: 1.2mm;
+  padding-bottom: 0.6mm;
+  border-bottom: 0.5px solid #cbd5e1;
+}
+body.printing .print-legend-meta {
+  font-weight: 500;
+  font-size: 6.8pt;
+  color: #64748b !important;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+body.printing .print-legend-grid {
+  columns: 3;
+  column-gap: 4mm;
+  font-size: 6.5pt;
+  line-height: 1.28;
+}
+body.printing .print-legend-group {
+  break-inside: avoid;
+  margin-bottom: 1.4mm;
+}
+body.printing .print-legend-group-title {
+  font-weight: 700;
+  margin-bottom: 0.3mm;
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  font-size: 6.8pt;
+}
+body.printing .print-legend-group-title .swatch {
+  width: 2.2mm; height: 2.2mm;
+  border-radius: 0.5mm;
+  flex-shrink: 0;
+}
+body.printing .print-legend-item {
+  padding-left: 3.6mm;
+  font-size: 6.2pt;
+  line-height: 1.3;
+}
+
+body.printing #print-footer {
+  display: block !important;
+  position: fixed;
+  bottom: 1.2mm;
+  left: 4mm;
+  width: 202mm;
+  font-family: 'Inter', sans-serif;
+  font-size: 5.8pt;
+  color: #94a3b8 !important;
+  text-align: center;
+  z-index: 2;
+}
+
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  body.printing { margin: 0 !important; }
+}
+
 /* ============================================
    MOBILE BUTTONS (hidden by default)
    ============================================ */
@@ -972,6 +1160,17 @@ html, body {
         Raios
       </button>
 
+      <button id="btn-export" class="icon-btn" aria-label="Exportar PDF A4"
+        title="Exportar PDF A4">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      </button>
+
       <!-- Botões mobile (escondidos no desktop via CSS) -->
       <button id="mobile-filter-btn" aria-label="Abrir filtros">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -1012,6 +1211,11 @@ html, body {
         <!-- .actions-stack é movido para cá pelo JS quando mobile -->
       </div>
     </div>
+
+    <!-- PRINT-ONLY (só aparece em @media print) -->
+    <div id="print-header"></div>
+    <div id="print-legend"></div>
+    <div id="print-footer"></div>
 
     <div id="map"></div>
 
@@ -1490,7 +1694,12 @@ function switchMapLayer(name) {
 }
 
 function initMap() {
-  state.map = L.map('map', { zoomControl: true }).setView([-15, -51.5], 4);
+  state.map = L.map('map', {
+    zoomControl: true,
+    zoomSnap: 0.5,           // permite meio-zoom (mais granular)
+    zoomDelta: 0.5,          // botões + e − dão passos menores
+    wheelPxPerZoomLevel: 110 // roda precisa rolar mais pra mudar zoom (menos sensível)
+  }).setView([-15, -51.5], 4);
   switchMapLayer('Simples'); // abre sempre na mais simples
 
   state.layers.routes = L.layerGroup().addTo(state.map);
@@ -1514,7 +1723,7 @@ function initMap() {
 
   if (LOJAS.length > 0) {
     const bounds = L.latLngBounds([[CD.lat, CD.lng], ...LOJAS.map(l => [l.lat, l.lng])]);
-    state.map.fitBounds(bounds, { padding: [80, 80] });
+    state.map.fitBounds(bounds, { padding: [120, 120], maxZoom: 11 });
   }
 }
 
@@ -2176,7 +2385,7 @@ function clearAll() {
   if (state.showRadii) toggleRadii();
 
   const bounds = L.latLngBounds([[CD.lat, CD.lng], ...LOJAS.map(l => [l.lat, l.lng])]);
-  state.map.fitBounds(bounds, { padding: [80, 80] });
+  state.map.fitBounds(bounds, { padding: [120, 120], maxZoom: 11 });
   setBusy(false);
 }
 
@@ -2218,6 +2427,402 @@ function setBusy(on, label) {
     if (a.dataset.original) a.textContent = a.dataset.original;
     a.classList.remove('busy');
   }
+}
+
+// ============================================
+// EXPORTAR PDF A4 (html2canvas + jsPDF)
+// ============================================
+function hslToRgb(hsl) {
+  const m = hsl.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/);
+  if (!m) return [0, 0, 0];
+  const h = parseFloat(m[1]) / 360, s = parseFloat(m[2]) / 100, l = parseFloat(m[3]) / 100;
+  let r, g, b;
+  if (s === 0) { r = g = b = l; }
+  else {
+    const f = (p, q, t) => {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = f(p, q, h + 1/3); g = f(p, q, h); b = f(p, q, h - 1/3);
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+// Aguarda as libs ficarem disponíveis (polling). Retorna true se carregou, false se timeout.
+async function waitForExportLibs(timeoutMs = 20000, onProgress = null) {
+  const start = Date.now();
+  let lastUpdate = 0;
+  while (!window.html2canvas || !window.jspdf) {
+    if (Date.now() - start > timeoutMs) return false;
+    await new Promise(r => setTimeout(r, 120));
+    // chama onProgress no máximo a cada 500 ms para não floodar a UI
+    if (onProgress && Date.now() - lastUpdate > 500) {
+      const secs = Math.floor((Date.now() - start) / 1000);
+      onProgress(secs);
+      lastUpdate = Date.now();
+    }
+  }
+  return true;
+}
+
+// Extrai a lista ordenada (sequência das rotas) — usado em ambos exporters
+function getOrderedItemsForExport() {
+  const orderedItems = [];
+  if (Object.keys(state.routesByAgrup).length > 0) {
+    Object.entries(state.routesByAgrup).forEach(([agr, data]) => {
+      const cache = data.cache[state.currentStrategy];
+      const source = cache ? cache.ordered : data.lojas;
+      source.forEach(l => orderedItems.push({ loja: l, agrupamento: agr, color: data.color }));
+    });
+  } else {
+    state.filteredLojas.forEach(l => orderedItems.push({
+      loja: l, agrupamento: l.agrupamento, color: getColor(l.agrupamento)
+    }));
+  }
+  return orderedItems;
+}
+
+// ============================================
+// EXPORT VIA PRINT — fallback sem libs externas
+// Usa o diálogo nativo do navegador. O usuário escolhe "Salvar como PDF" no destino.
+// ============================================
+async function exportViaPrint() {
+  if (state.filteredLojas.length === 0) {
+    alert('Aplique algum filtro primeiro.');
+    return;
+  }
+
+  const orderedItems = getOrderedItemsForExport();
+
+  // 1) Etiquetas numeradas com nome da loja
+  const tempLayer = L.layerGroup().addTo(state.map);
+  orderedItems.forEach(({ loja, color }, idx) => {
+    L.marker([loja.lat, loja.lng], {
+      icon: L.divIcon({
+        className: 'export-label',
+        html: `<div class="export-label-num" style="background:${color};">${idx + 1}</div>`,
+        iconSize: [0, 0],
+        iconAnchor: [-6, 14]
+      }),
+      interactive: false,
+      zIndexOffset: 1500
+    }).addTo(tempLayer);
+  });
+
+  // 2) Preenche header/legend de impressão
+  updatePrintHeader(orderedItems);
+  updatePrintLegend(orderedItems);
+
+  // 3) Aplica modo print — agora a tela JÁ assume o tamanho A4 portrait
+  document.body.classList.add('printing');
+
+  // 4) Aguarda o browser aplicar o CSS antes de medir e fitar
+  await new Promise(r => requestAnimationFrame(() => r()));
+  await new Promise(r => setTimeout(r, 50));
+
+  // 5) Recalcula o tamanho do mapa (agora 198 × 175 mm) e dá fit com CD + lojas
+  state.map.invalidateSize(true);
+  const fitPts = [[CD.lat, CD.lng], ...state.filteredLojas.map(l => [l.lat, l.lng])];
+  state.map.fitBounds(L.latLngBounds(fitPts), { padding: [25, 25], maxZoom: 11 });
+
+  // 6) Espera tiles do novo enquadramento carregarem
+  await new Promise(r => setTimeout(r, 900));
+
+  // 6) Cleanup ao terminar (ou cancelar) a impressão
+  let cleaned = false;
+  function cleanup() {
+    if (cleaned) return;
+    cleaned = true;
+    document.body.classList.remove('printing');
+    tempLayer.clearLayers();
+    state.map.removeLayer(tempLayer);
+    state.map.invalidateSize(true);
+    window.removeEventListener('afterprint', cleanup);
+  }
+  window.addEventListener('afterprint', cleanup);
+  // Fallback safety net (alguns browsers não disparam afterprint)
+  setTimeout(cleanup, 60000);
+
+  // 7) Abre o diálogo
+  window.print();
+}
+
+function updatePrintHeader(orderedItems) {
+  const el = document.getElementById('print-header');
+  if (!el) return;
+  const strat = getStrategy(state.currentStrategy);
+  const groupsCount = Object.keys(state.routesByAgrup).length
+    || new Set(state.filteredLojas.map(l => l.agrupamento)).size;
+  let totalKm = 0, totalSec = 0;
+  Object.values(state.routesByAgrup).forEach(d => {
+    const c = d.cache[state.currentStrategy];
+    if (c) { totalKm += c.totalKm; totalSec += c.totalSec; }
+  });
+  const hh = Math.floor(totalSec/3600), mm = Math.round((totalSec%3600)/60);
+  const summary = [
+    `Estratégia: ${strat.name}`,
+    `${orderedItems.length} loja${orderedItems.length>1?'s':''} em ${groupsCount} agrupamento${groupsCount>1?'s':''}`,
+    totalKm > 0 ? `${totalKm.toFixed(0)} km · ${hh}h${String(mm).padStart(2,'0')}` : ''
+  ].filter(Boolean).join(' · ');
+  const date = new Date().toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
+  el.innerHTML = `
+    <div class="print-title">Rotas Logísticas — CD Barueri</div>
+    <div class="print-date">${date}</div>
+    <div class="print-summary">${summary}</div>
+  `;
+}
+
+function updatePrintLegend(orderedItems) {
+  const el = document.getElementById('print-legend');
+  if (!el) return;
+
+  const grouped = {};
+  orderedItems.forEach((it, idx) => {
+    (grouped[it.agrupamento] = grouped[it.agrupamento] || []).push({ ...it, n: idx + 1 });
+  });
+
+  // Resumo (km + tempo total) para a linha do título
+  const strat = getStrategy(state.currentStrategy);
+  let totalKm = 0, totalSec = 0;
+  Object.values(state.routesByAgrup).forEach(d => {
+    const c = d.cache[state.currentStrategy];
+    if (c) { totalKm += c.totalKm; totalSec += c.totalSec; }
+  });
+  const hh = Math.floor(totalSec/3600), mm = Math.round((totalSec%3600)/60);
+  const metaParts = [
+    `${strat.name}`,
+    `${orderedItems.length} loja${orderedItems.length>1?'s':''}`,
+    `${Object.keys(grouped).length} agrupamento${Object.keys(grouped).length>1?'s':''}`,
+    totalKm > 0 ? `${totalKm.toFixed(0)} km · ${hh}h${String(mm).padStart(2,'0')}` : ''
+  ].filter(Boolean).join(' · ');
+
+  el.innerHTML = `
+    <div class="print-legend-title">
+      <span>Sequência das rotas</span>
+      <span class="print-legend-meta">${metaParts}</span>
+    </div>
+    <div class="print-legend-grid">
+      ${Object.entries(grouped).map(([agr, items]) => `
+        <div class="print-legend-group">
+          <div class="print-legend-group-title">
+            <span class="swatch" style="background:${getColor(agr)}"></span>
+            ${agr} (${items.length})
+          </div>
+          ${items.map(({ n, loja }) => `<div class="print-legend-item">${n}. ${loja.razao}</div>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  const footer = document.getElementById('print-footer');
+  if (footer) footer.textContent = `Rotas Logísticas · CD Barueri · ${new Date().toLocaleDateString('pt-BR')}`;
+}
+
+async function exportToA4() {
+  if (state.filteredLojas.length === 0) {
+    alert('Aplique algum filtro e/ou clique em Aplicar primeiro.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-export');
+  const origTitle = btn.title;
+  btn.classList.add('busy');
+
+  // Etapa 1: tenta libs por 8s. Se falhar, cai pro modo print (sem libs).
+  if (!window.html2canvas || !window.jspdf) {
+    btn.title = 'Carregando libs…';
+    const ok = await waitForExportLibs(8000, (secs) => {
+      btn.title = `Carregando libs (${secs}s)…`;
+    });
+    if (!ok) {
+      btn.classList.remove('busy');
+      btn.title = origTitle;
+      const useFallback = confirm(
+        'As bibliotecas de PDF (html2canvas/jsPDF) não carregaram — sua rede pode estar bloqueando o CDN.\n\n' +
+        'Posso usar o diálogo de impressão do navegador como alternativa. Escolha "Salvar como PDF" no campo Destino para baixar.\n\nContinuar?'
+      );
+      if (useFallback) await exportViaPrint();
+      return;
+    }
+  }
+  btn.title = 'Gerando PDF…';
+
+  const orderedItems = getOrderedItemsForExport();
+
+  // Adiciona etiquetas numeradas com nome da loja
+  const tempLayer = L.layerGroup().addTo(state.map);
+  orderedItems.forEach(({ loja, color }, idx) => {
+    L.marker([loja.lat, loja.lng], {
+      icon: L.divIcon({
+        className: 'export-label',
+        html: `<div class="export-label-num" style="background:${color};">${idx + 1}</div>`,
+        iconSize: [0, 0],
+        iconAnchor: [-6, 14]
+      }),
+      interactive: false,
+      zIndexOffset: 1500
+    }).addTo(tempLayer);
+  });
+
+  document.body.classList.add('exporting');
+
+  // Reposiciona/fita para garantir foco nas rotas
+  const fitPts = [[CD.lat, CD.lng], ...state.filteredLojas.map(l => [l.lat, l.lng])];
+  state.map.fitBounds(L.latLngBounds(fitPts), { padding: [60, 60], maxZoom: 11 });
+
+  // Espera tiles e labels renderizarem
+  await new Promise(r => setTimeout(r, 700));
+
+  try {
+    const mapDiv = document.getElementById('map');
+    const canvas = await html2canvas(mapDiv, {
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false,
+      imageTimeout: 15000
+    });
+
+    // Limpa
+    tempLayer.clearLayers();
+    state.map.removeLayer(tempLayer);
+    document.body.classList.remove('exporting');
+
+    await buildPDF(canvas, orderedItems);
+  } catch (e) {
+    console.error('Export error:', e);
+    alert('Erro ao gerar PDF: ' + (e.message || 'desconhecido') + '\n\nDica: as imagens do tile provider precisam ser CORS-enabled. Tente trocar a camada para "Simples".');
+    tempLayer.clearLayers();
+    state.map.removeLayer(tempLayer);
+    document.body.classList.remove('exporting');
+  } finally {
+    btn.classList.remove('busy');
+    btn.title = origTitle;
+  }
+}
+
+async function buildPDF(mapCanvas, orderedItems) {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const M = 12;     // margem
+  const PW = 210, PH = 297;
+  const CW = PW - 2 * M;
+
+  // --- HEADER ---
+  pdf.setFillColor(15, 23, 42);
+  pdf.rect(0, 0, PW, 16, 'F');
+  pdf.setTextColor(255);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(14);
+  pdf.text('Rotas Logísticas — CD Barueri', M, 10);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.setTextColor(180);
+  const dateStr = new Date().toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
+  pdf.text(dateStr, PW - M, 10, { align: 'right' });
+  pdf.setTextColor(0);
+
+  // --- INFO DE ROTA ---
+  let y = 22;
+  pdf.setFontSize(9);
+  pdf.setTextColor(60);
+  const strat = getStrategy(state.currentStrategy);
+  const groupsCount = Object.keys(state.routesByAgrup).length;
+  let totalKm = 0, totalSec = 0;
+  Object.values(state.routesByAgrup).forEach(d => {
+    const c = d.cache[state.currentStrategy];
+    if (c) { totalKm += c.totalKm; totalSec += c.totalSec; }
+  });
+  const hh = Math.floor(totalSec/3600), mm = Math.round((totalSec%3600)/60);
+  const summary = [
+    `Estratégia: ${strat.name}`,
+    `${orderedItems.length} loja${orderedItems.length>1?'s':''} em ${groupsCount} agrupamento${groupsCount>1?'s':''}`,
+    totalKm > 0 ? `${totalKm.toFixed(0)} km · ${hh}h${String(mm).padStart(2,'0')}` : ''
+  ].filter(Boolean).join('  ·  ');
+  pdf.text(summary, M, y);
+  pdf.setTextColor(0);
+
+  // --- MAPA ---
+  y += 4;
+  const imgData = mapCanvas.toDataURL('image/jpeg', 0.92);
+  const aspect = mapCanvas.width / mapCanvas.height;
+  let imgW = CW;
+  let imgH = imgW / aspect;
+  // reservar espaço pra legenda (mínimo 70mm)
+  const maxImgH = PH - y - 90;
+  if (imgH > maxImgH) { imgH = maxImgH; imgW = imgH * aspect; }
+  const imgX = M + (CW - imgW) / 2;
+  pdf.addImage(imgData, 'JPEG', imgX, y, imgW, imgH);
+
+  // borda fina no mapa
+  pdf.setDrawColor(220);
+  pdf.setLineWidth(0.3);
+  pdf.rect(imgX, y, imgW, imgH);
+
+  // --- LEGENDA ---
+  let ly = y + imgH + 6;
+  pdf.setDrawColor(200);
+  pdf.line(M, ly, PW - M, ly);
+  ly += 5;
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(10);
+  pdf.text('Sequência das rotas', M, ly);
+  ly += 4;
+
+  // agrupar por agrupamento
+  const grouped = {};
+  orderedItems.forEach((it, idx) => {
+    (grouped[it.agrupamento] = grouped[it.agrupamento] || []).push({ ...it, n: idx + 1 });
+  });
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(7.5);
+
+  // 2 colunas
+  const colW = CW / 2 - 3;
+  const colsX = [M, M + colW + 6];
+  let cY = [ly, ly];
+  let col = 0;
+
+  Object.entries(grouped).forEach(([agr, items]) => {
+    if (cY[col] > PH - 14) col = 1 - col;
+    if (cY[col] > PH - 14) return;
+
+    const rgb = hslToRgb(getColor(agr));
+    pdf.setFillColor(rgb[0], rgb[1], rgb[2]);
+    pdf.rect(colsX[col], cY[col] - 2.6, 2.5, 2.5, 'F');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(8);
+    pdf.text(`${agr} (${items.length})`, colsX[col] + 4, cY[col]);
+    cY[col] += 3.4;
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7.3);
+    items.forEach(({ n, loja }) => {
+      if (cY[col] > PH - 12) {
+        col = 1 - col;
+        if (cY[col] > PH - 12) return;
+      }
+      const txt = `${n}. ${loja.razao}`;
+      pdf.text(txt.substring(0, 58), colsX[col] + 4, cY[col]);
+      cY[col] += 3;
+    });
+    cY[col] += 1.5;
+  });
+
+  // Rodapé
+  pdf.setFontSize(6.5);
+  pdf.setTextColor(140);
+  pdf.text(`CD Barueri · Estrada dos Alpes, 890 · gerado em ${new Date().toLocaleDateString('pt-BR')}`, M, PH - 5);
+
+  const fname = `rotas-${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pdf`;
+  pdf.save(fname);
 }
 
 // ============================================
@@ -2381,6 +2986,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-aplica').addEventListener('click', e => { e.preventDefault(); applyFilters(); });
   document.getElementById('btn-limpar').addEventListener('click', e => { e.preventDefault(); clearAll(); });
   document.getElementById('btn-raios').addEventListener('click', toggleRadii);
+  document.getElementById('btn-export').addEventListener('click', exportToA4);
 
   // Click fora fecha multi-selects e header dropdowns
   document.addEventListener('click', () => {
