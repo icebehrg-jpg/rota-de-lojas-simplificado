@@ -5635,33 +5635,38 @@
             },
             'Clara': {
                 name: 'Clara',
-                description: 'Tons claros, discreta (Positron)',
+                description: 'Cinza claro, discreta (sem marca d\u2019água)',
                 swatch: '#eef1f4',
-                create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '© OpenStreetMap, © CARTO',
-                    subdomains: 'abcd',
-                    maxZoom: 20
-                })
+                create: () => L.layerGroup([
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: '© Esri', maxZoom: 16
+                    }),
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: '© Esri', maxZoom: 16, pane: 'overlayPane'
+                    })
+                ])
             },
             'Colorida': {
                 name: 'Colorida',
-                description: 'Estilo moderno, colorido (Voyager)',
+                description: 'Estilo topográfico colorido',
                 swatch: '#dceeb6',
-                create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                    attribution: '© OpenStreetMap, © CARTO',
-                    subdomains: 'abcd',
-                    maxZoom: 20
+                create: () => L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri, HERE, Garmin',
+                    maxZoom: 19
                 })
             },
             'Escuro': {
                 name: 'Escuro',
-                description: 'Tons escuros, contraste alto',
+                description: 'Cinza escuro, contraste alto (sem marca d\u2019água)',
                 swatch: '#1f2937',
-                create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '© OpenStreetMap, © CARTO',
-                    subdomains: 'abcd',
-                    maxZoom: 19
-                })
+                create: () => L.layerGroup([
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: '© Esri', maxZoom: 16
+                    }),
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: '© Esri', maxZoom: 16, pane: 'overlayPane'
+                    })
+                ])
             },
             'Ruas': {
                 name: 'Ruas',
@@ -7382,6 +7387,11 @@ function closeSheet() {
   if (typeof allMultiSelects !== 'undefined') allMultiSelects.forEach(m => m.close());
 }
     </script>
+</body>
+
+</html>ent.getElementById('mobile-sheet').classList.remove('open'); document.getElementById('mobile-sheet-backdrop').classList.remove('open'); document.body.style.overflow = ''; // Fecha qualquer multi-select aberto também if (typeof allMultiSelects !== 'undefined')
+allMultiSelects.forEach(m => m.close()); }
+</script>
 </body>
 
 </html>
