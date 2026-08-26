@@ -1671,13 +1671,13 @@ const cdIcon = L.divIcon({
 // CAMADAS DO MAPA (5 opções) — default = Simples
 // ============================================
 const MAP_LAYERS = {
-  'Simples': {
+'Simples': {
     name: 'Simples',
     description: 'Minimalista, claro',
     swatch: '#f8fafc',
-    create: () => L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap, © CARTO',
-      subdomains: 'abcd', maxZoom: 19
+    create: () => L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
     })
   },
   'Padrão': {
