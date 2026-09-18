@@ -1326,12 +1326,11 @@
         <div class="brand">
             <div class="brand-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"
-                            stroke="currentColor" stroke-width="2"
-                            stroke-linejoin="round" />
-                        <circle cx="12" cy="10" r="2.5" fill="currentColor" />
-                    </svg>
+            <path
+              d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"
+              stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+            <circle cx="12" cy="10" r="2.5" fill="currentColor" />
+          </svg>
             </div>
             <div class="brand-text">
                 <span class="brand-title">Rotas Logísticas</span>
@@ -1353,89 +1352,92 @@
         </div>
 
         <button id="btn-layers" class="header-btn" aria-label="Camadas do mapa">
-                <svg class="header-btn-icon" width="16" height="16"
-                    viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                    <path d="M2 17l10 5 10-5" />
-                    <path d="M2 12l10 5 10-5" />
-                </svg>
-                <span class="header-btn-text">
-                    <span class="header-btn-label">Camada</span>
-                    <span class="header-btn-value"
-                        id="btn-layers-value">Simples</span>
-                </span>
-                <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
-                    height="11">
-                    <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
-                        stroke-width="1.6" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </button>
+        <svg class="header-btn-icon" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+        <span class="header-btn-text">
+          <span class="header-btn-label">Camada</span>
+          <span class="header-btn-value" id="btn-layers-value">Simples</span>
+        </span>
+        <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
+          height="11">
+          <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
+            stroke-width="1.6" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
 
         <button id="btn-route-version" class="header-btn" hidden aria-label="Versão da rota">
-                <svg class="header-btn-icon" width="16" height="16"
-                    viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><path
-                        d="M18 9v12" /><circle cx="18" cy="6" r="3" /><path
-                        d="M6 15c0-3 3-3 6-3s6 0 6-3" />
-                </svg>
-                <span class="header-btn-text">
-                    <span class="header-btn-label">Versão</span>
-                    <span class="header-btn-value"
-                        id="btn-route-version-value">Otimizada</span>
-                </span>
-                <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
-                    height="11">
-                    <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
-                        stroke-width="1.6" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </button>
+        <svg class="header-btn-icon" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><path
+            d="M18 9v12" /><circle cx="18" cy="6" r="3" /><path
+            d="M6 15c0-3 3-3 6-3s6 0 6-3" />
+        </svg>
+        <span class="header-btn-text">
+          <span class="header-btn-label">Versão</span>
+          <span class="header-btn-value"
+            id="btn-route-version-value">Otimizada</span>
+        </span>
+        <svg class="header-btn-caret" viewBox="0 0 12 12" width="11"
+          height="11">
+          <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor"
+            stroke-width="1.6" fill="none" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
 
         <button id="btn-raios">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <circle cx="12" cy="12" r="3" fill="currentColor" />
-                </svg>
-                Raios
-            </button>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" fill="currentColor" />
+        </svg>
+        Raios
+      </button>
 
-        <button id="btn-export" class="icon-btn" aria-label="Exportar PDF A4" title="Exportar PDF A4">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-            </button>
+        <button id="btn-clear-cache" class="icon-btn" aria-label="Limpar cache" title="Limpar cache">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M19.5 5.5 10 15" />
+          <path d="M10 15 3.5 21" />
+          <path d="M10 15 2.5 17.5" />
+          <path d="M10 15 6 21.5" />
+          <path d="M10 15 1.5 14.5" />
+          <circle cx="19.5" cy="5.5" r="1.2" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+
+        <button id="btn-export" class="icon-btn" aria-label="Exportar PDF A4" title="Exportar PDF A4" <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      </button>
 
         <!-- Botões mobile (escondidos no desktop via CSS) -->
         <button id="mobile-filter-btn" aria-label="Abrir filtros">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M3 6h18M6 12h12M10 18h4" />
-                </svg>
-                <span>Filtros</span>
-                <span class="filter-badge" id="filter-badge">0</span>
-            </button>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M3 6h18M6 12h12M10 18h4" />
+        </svg>
+        <span>Filtros</span>
+        <span class="filter-badge" id="filter-badge">0</span>
+      </button>
         <button id="mobile-raios-btn" aria-label="Mostrar raios">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round">
-                    <circle cx="12" cy="12" r="9" />
-                    <circle cx="12" cy="12" r="3" fill="currentColor" />
-                </svg>
-            </button>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" fill="currentColor" />
+        </svg>
+      </button>
     </div>
 
     <!-- BOTTOM SHEET (mobile) -->
@@ -1447,12 +1449,11 @@
         <div class="sheet-header">
             <span class="sheet-title" id="sheet-title">Filtros</span>
             <button class="sheet-close" id="sheet-close" aria-label="Fechar">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round">
-                        <path d="M6 6l12 12M6 18L18 6" />
-                    </svg>
-                </button>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M6 6l12 12M6 18L18 6" />
+          </svg>
+        </button>
         </div>
         <div class="sheet-body" id="sheet-body">
             <!-- .filters é movido para cá pelo JS quando mobile -->
@@ -6662,6 +6663,43 @@ function toggleRadii() {
 }
 
 // ============================================
+// LIMPAR CACHE
+// Limpa: cache de rotas OSRM em memória (força recálculo),
+// Cache Storage do navegador e local/sessionStorage (defensivo).
+// ============================================
+async function limparCache() {
+  const btn = document.getElementById('btn-clear-cache');
+  if (!btn || btn.classList.contains('busy')) return;
+  btn.classList.add('busy');
+
+  try {
+    // 1) Limpa o cache de rotas calculadas (por agrupamento e estratégia)
+    //    Isso força o app a buscar as rotas de novo no OSRM na próxima renderização.
+    Object.values(state.routesByAgrup).forEach(d => { d.cache = {}; });
+
+    // 2) Limpa o Cache Storage do navegador, se existir
+    if (window.caches && caches.keys) {
+      try {
+        const names = await caches.keys();
+        await Promise.all(names.map(n => caches.delete(n)));
+      } catch (e) { console.warn('Falha ao limpar Cache Storage:', e); }
+    }
+
+    // 3) Limpa localStorage / sessionStorage (defensivo — o app não depende deles)
+    try { localStorage.clear(); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+
+    // 4) Recalcula as rotas da estratégia atual, se já havia rotas na tela
+    if (Object.keys(state.routesByAgrup).length > 0) {
+      await renderStrategyForAll(state.currentStrategy);
+      updateRouteVersionButton();
+    }
+  } finally {
+    btn.classList.remove('busy');
+  }
+}
+
+// ============================================
 // UI BUSY
 // ============================================
 function setBusy(on, label) {
@@ -7234,6 +7272,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-aplica').addEventListener('click', e => { e.preventDefault(); applyFilters(); });
   document.getElementById('btn-limpar').addEventListener('click', e => { e.preventDefault(); clearAll(); });
   document.getElementById('btn-raios').addEventListener('click', toggleRadii);
+  document.getElementById('btn-clear-cache').addEventListener('click', limparCache);
   document.getElementById('btn-export').addEventListener('click', exportToA4);
 
   // Click fora fecha multi-selects e header dropdowns
